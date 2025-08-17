@@ -1,102 +1,235 @@
+'use client';
+
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [apiStatus, setApiStatus] = useState<string>('checking');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    // Check API health
+    fetch('/api/health')
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'healthy') {
+          setApiStatus('healthy');
+        } else {
+          setApiStatus('error');
+        }
+      })
+      .catch(() => setApiStatus('error'));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-green-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">🌿</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">StoryLeaf</h1>
+            </div>
+            <nav className="hidden md:flex space-x-8">
+              <Link href="#features" className="text-gray-600 hover:text-green-600 transition-colors">
+                Funcionalidades
+              </Link>
+              <Link href="#about" className="text-gray-600 hover:text-green-600 transition-colors">
+                Sobre
+              </Link>
+              <Link href="/write" className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                Começar a Escrever
+              </Link>
+            </nav>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="mb-8">
+            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              No StoryLeaf, cada palavra é uma{" "}
+              <span className="text-green-500">semente</span>
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto">
+              Cada história, uma árvore. E cada leitor, um jardineiro da imaginação.
+            </p>
+            <p className="text-lg text-gray-500 mb-12 max-w-3xl mx-auto">
+              Plataforma revolucionária para criar, ler e aprender com histórias, 
+              utilizando a metáfora da árvore onde histórias crescem como folhas.
+            </p>
+          </div>
+
+          {/* API Status */}
+          <div className="mb-8">
+            <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+              apiStatus === 'healthy' ? 'bg-green-100 text-green-800' :
+              apiStatus === 'error' ? 'bg-red-100 text-red-800' :
+              'bg-yellow-100 text-yellow-800'
+            }`}>
+              <div className={`w-2 h-2 rounded-full mr-2 ${
+                apiStatus === 'healthy' ? 'bg-green-500' :
+                apiStatus === 'error' ? 'bg-red-500' :
+                'bg-yellow-500'
+              }`}></div>
+              API Status: {apiStatus === 'healthy' ? 'Online' : apiStatus === 'error' ? 'Offline' : 'Verificando...'}
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <Link 
+              href="/write"
+              className="bg-green-500 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-600 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              🌱 Plantar Nova História
+            </Link>
+            <Link 
+              href="/read"
+              className="bg-white text-green-600 border-2 border-green-500 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              📚 Explorar Floresta
+            </Link>
+          </div>
+
+          {/* Tree Metaphor Visual */}
+          <div className="relative max-w-4xl mx-auto">
+            <div className="text-6xl mb-4">🌳</div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-lg">
+                <div className="text-3xl mb-3">🌱</div>
+                <h3 className="font-bold text-gray-900 mb-2">Raiz</h3>
+                <p className="text-gray-600 text-sm">Ideia original e inspiração</p>
+              </div>
+              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-lg">
+                <div className="text-3xl mb-3">🌲</div>
+                <h3 className="font-bold text-gray-900 mb-2">Tronco</h3>
+                <p className="text-gray-600 text-sm">Enredo principal</p>
+              </div>
+              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-lg">
+                <div className="text-3xl mb-3">🌿</div>
+                <h3 className="font-bold text-gray-900 mb-2">Galhos</h3>
+                <p className="text-gray-600 text-sm">Ramificações narrativas</p>
+              </div>
+              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-lg">
+                <div className="text-3xl mb-3">🍃</div>
+                <h3 className="font-bold text-gray-900 mb-2">Folhas</h3>
+                <p className="text-gray-600 text-sm">Capítulos e momentos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-white/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Funcionalidades Principais
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Descubra as ferramentas que transformarão sua experiência de escrita e leitura
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* StoryLeaf WRITE */}
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-4">🖋️</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">StoryLeaf WRITE</h3>
+              <p className="text-gray-600 mb-4">O Jardim de Ideias com IA para gerar enredos e desenvolver personagens</p>
+              <ul className="text-sm text-gray-500 space-y-1">
+                <li>• Semente de História com IA</li>
+                <li>• Mapas de Personagens</li>
+                <li>• Colaboração em Tempo Real</li>
+              </ul>
+            </div>
+
+            {/* StoryLeaf READ */}
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-4">📚</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">StoryLeaf read</h3>
+              <p className="text-gray-600 mb-4">A Floresta de Histórias com experiência imersiva e interativa</p>
+              <ul className="text-sm text-gray-500 space-y-1">
+                <li>• Biblioteca Visual</li>
+                <li>• Narrativa Interativa</li>
+                <li>• Realidade Aumentada</li>
+              </ul>
+            </div>
+
+            {/* StoryLeaf LEARN */}
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-4">🎓</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">StoryLeaf LEARN</h3>
+              <p className="text-gray-600 mb-4">Folhas de Aprendizado com gamificação educacional</p>
+              <ul className="text-sm text-gray-500 space-y-1">
+                <li>• Árvore de Conhecimento</li>
+                <li>• Integração LMS</li>
+                <li>• Conteúdo Adaptativo</li>
+              </ul>
+            </div>
+
+            {/* StoryLeaf CONVERT */}
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-4">🔄</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">StoryLeaf CONVERT</h3>
+              <p className="text-gray-600 mb-4">Transforme livros em experiências vividas</p>
+              <ul className="text-sm text-gray-500 space-y-1">
+                <li>• Importação Universal</li>
+                <li>• Templates Criativos</li>
+                <li>• Gamificação Embutida</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold">🌿</span>
+                </div>
+                <h3 className="text-xl font-bold">StoryLeaf</h3>
+              </div>
+              <p className="text-gray-400 mb-4 max-w-md">
+                Onde histórias crescem e florescem. Transformando a experiência de leitura e escrita.
+              </p>
+              <p className="text-sm text-gray-500">
+                © 2025 StoryLeaf. Todos os direitos reservados.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Produto</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link href="/write" className="hover:text-white transition-colors">Escrever</Link></li>
+                <li><Link href="/read" className="hover:text-white transition-colors">Ler</Link></li>
+                <li><Link href="/learn" className="hover:text-white transition-colors">Aprender</Link></li>
+                <li><Link href="/convert" className="hover:text-white transition-colors">Converter</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Recursos</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link href="/docs" className="hover:text-white transition-colors">Documentação</Link></li>
+                <li><Link href="/api" className="hover:text-white transition-colors">API</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Suporte</Link></li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
