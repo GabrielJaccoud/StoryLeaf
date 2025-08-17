@@ -15,6 +15,9 @@ interface Book {
   description: string;
   chapters: number;
   readingTime: number; // em minutos
+  content?: string; // Conteúdo completo do livro
+  interactiveElements?: { [key: string]: any }; // Elementos interativos (JSON)
+  arMarkers?: { [key: string]: any }; // Marcadores de RA (JSON)
 }
 
 interface UserProgress {
@@ -40,79 +43,34 @@ export default function ReadPage() {
 
   // Simular dados de livros
   useEffect(() => {
-    const mockBooks: Book[] = [
-      {
-        id: 1,
-        title: "O Senhor dos Anéis",
-        author: "J.R.R. Tolkien",
-        genre: "fantasia",
-        progress: 65,
-        popularity: 95,
-        status: "reading",
-        description: "Uma épica jornada através da Terra Média...",
-        chapters: 62,
-        readingTime: 1200
-      },
-      {
-        id: 2,
-        title: "1984",
-        author: "George Orwell",
-        genre: "distopia",
-        progress: 100,
-        popularity: 88,
-        status: "completed",
-        description: "Um futuro sombrio onde a liberdade é uma ilusão...",
-        chapters: 23,
-        readingTime: 480
-      },
-      {
-        id: 3,
-        title: "Orgulho e Preconceito",
-        author: "Jane Austen",
-        genre: "romance",
-        progress: 0,
-        popularity: 82,
-        status: "unread",
-        description: "Uma história de amor e sociedade na Inglaterra do século XIX...",
-        chapters: 61,
-        readingTime: 720
-      },
-      {
-        id: 4,
-        title: "O Nome da Rosa",
-        author: "Umberto Eco",
-        genre: "mistério",
-        progress: 30,
-        popularity: 76,
-        status: "reading",
-        description: "Um mistério medieval em uma abadia italiana...",
-        chapters: 45,
-        readingTime: 960
-      },
-      {
-        id: 5,
-        title: "Duna",
-        author: "Frank Herbert",
-        genre: "ficção científica",
-        progress: 0,
-        popularity: 91,
-        status: "unread",
-        description: "Uma saga épica em um planeta desértico...",
-        chapters: 48,
-        readingTime: 1080
+    const fetchBooks = async () => {
+      try {
+        const response = await fetch("/api/books");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setBooks(data.books);
+      } catch (error) {
+        console.error("Erro ao buscar livros:", error);
       }
-    ];
+    };
 
-    setBooks(mockBooks);
-    
-    // Simular progresso do usuário
-    setUserProgress({
-      totalBooksRead: 12,
-      totalReadingTime: 8640, // em minutos
-      currentStreak: 7,
-      orvalho: 2450,
-      achievements: ["Explorador de Mundos", "Leitor Dedicado", "Detetive Literário"]
-    });
+    const fetchUserProgress = async () => {
+      try {
+        const response = await fetch("/api/user/progress");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setUserProgress(data.progress);
+      } catch (error) {
+        console.error("Erro ao buscar progresso do usuário:", error);
+      }
+    };
+
+    fetchBooks();
+    fetchUserProgress();
   }, []);
 
   const getGenreColor = (genre: string) => {
@@ -415,54 +373,187 @@ export default function ReadPage() {
               </div>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-[70vh]">
-              <div className="prose max-w-none">
-                <p className="text-gray-700 mb-6">{selectedBook.description}</p>
-                
-                <div className="bg-green-50 p-4 rounded-lg mb-6">
-                  <h4 className="font-semibold text-green-800 mb-2">📊 Informações do Livro</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Capítulos:</span>
-                      <span className="ml-2 font-medium">{selectedBook.chapters}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Tempo estimado:</span>
-                      <span className="ml-2 font-medium">{Math.floor(selectedBook.readingTime / 60)}h {selectedBook.readingTime % 60}min</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Gênero:</span>
-                      <span className="ml-2 font-medium capitalize">{selectedBook.genre}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Status:</span>
-                      <span className="ml-2 font-medium capitalize">{selectedBook.status}</span>
-                    </div>
-                  </div>
-                </div>
+            <BookReader book={selectedBook} />
 
-                {selectedBook.status === 'reading' && (
-                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                    <h4 className="font-semibold text-blue-800 mb-2">📖 Progresso de Leitura</h4>
-                    <div className="w-full bg-blue-200 rounded-full h-3 mb-2">
-                      <div 
-                        className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-                        style={{ width: `${selectedBook.progress}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm text-blue-700">{selectedBook.progress}% concluído</p>
-                  </div>
-                )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-                <div className="flex space-x-4">
-                  <button className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
-                    {selectedBook.status === 'unread' ? '🌱 Começar Leitura' : '📖 Continuar Lendo'}
-                  </button>
-                  <button className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
-                    🕶️ Modo RA
-                  </button>
+interface BookReaderProps {
+  book: Book;
+}
+
+function BookReader({ book }: Book) {
+  const [bookContent, setBookContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showGlossary, setShowGlossary] = useState(false);
+  const [glossaryTerm, setGlossaryTerm] = useState<string | null>(null);
+  const [showNarrativeMap, setShowNarrativeMap] = useState(false);
+
+  useEffect(() => {
+    const fetchBookContent = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`/api/books/${book.id}/content`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setBookContent(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (book.id) {
+      fetchBookContent();
+    }
+  }, [book.id]);
+
+  const handleKeywordClick = (keyword: string) => {
+    setGlossaryTerm(keyword);
+    setShowGlossary(true);
+  };
+
+  if (loading) {
+    return <div className="p-6 text-center">Carregando conteúdo do livro...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-center text-red-500">Erro ao carregar livro: {error}</div>;
+  }
+
+  if (!bookContent) {
+    return <div className="p-6 text-center">Nenhum conteúdo disponível.</div>;
+  }
+
+  return (
+    <div className="p-6 overflow-y-auto max-h-[70vh]">
+      <div className="prose max-w-none">
+        <p className="text-gray-700 mb-6">{book.description}</p>
+        
+        <div className="bg-green-50 p-4 rounded-lg mb-6">
+          <h4 className="font-semibold text-green-800 mb-2">📊 Informações do Livro</h4>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600">Capítulos:</span>
+              <span className="ml-2 font-medium">{book.chapters}</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Tempo estimado:</span>
+              <span className="ml-2 font-medium">{Math.floor(book.readingTime / 60)}h {book.readingTime % 60}min</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Gênero:</span>
+              <span className="ml-2 font-medium capitalize">{book.genre}</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Status:</span>
+              <span className="ml-2 font-medium capitalize">{book.status}</span>
+            </div>
+          </div>
+        </div>
+
+        {book.status === 'reading' && (
+          <div className="bg-blue-50 p-4 rounded-lg mb-6">
+            <h4 className="font-semibold text-blue-800 mb-2">📖 Progresso de Leitura</h4>
+            <div className="w-full bg-blue-200 rounded-full h-3 mb-2">
+              <div 
+                className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${book.progress}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-blue-700">{book.progress}% concluído</p>
+          </div>
+        )}
+
+        {/* Conteúdo do Livro - Exemplo de primeiro capítulo */}
+        {bookContent.chapters && bookContent.chapters.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">{bookContent.chapters[0].title}</h3>
+            <p className="text-gray-700">{bookContent.chapters[0].content}</p>
+            {/* Exemplo de elemento interativo */}
+            {bookContent.chapters[0].interactive_elements && bookContent.chapters[0].interactive_elements.keywords && (
+              <div className="mt-4">
+                <h5 className="font-semibold text-gray-800">Palavras-chave:</h5>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {bookContent.chapters[0].interactive_elements.keywords.map((keyword: string, index: number) => (
+                    <span 
+                      key={index} 
+                      className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full cursor-pointer hover:bg-blue-200 transition-colors"
+                      onClick={() => handleKeywordClick(keyword)}
+                    >
+                      {keyword}
+                    </span>
+                  ))}
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex space-x-4">
+          <button className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+            {book.status === 'unread' ? '🌱 Começar Leitura' : '📖 Continuar Lendo'}
+          </button>
+          <button className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+            🕶️ Modo RA
+          </button>
+          <button 
+            onClick={() => setShowNarrativeMap(true)}
+            className="bg-purple-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-600 transition-colors"
+          >
+            🗺️ Mapa Narrativo
+          </button>
+        </div>
+      </div>
+
+      {/* Glossary Modal */}
+      {showGlossary && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Glossário</h2>
+              <button
+                onClick={() => setShowGlossary(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+              <h3 className="text-xl font-semibold mb-4">{glossaryTerm}</h3>
+              {/* Mock content for glossary term */}
+              <p className="text-gray-700">Esta é a definição de "{glossaryTerm}" no contexto da história. Pode incluir ilustrações e exemplos.</p>
+              {/* Adicionar lógica para buscar definição real do backend */}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Narrative Map Modal */}
+      {showNarrativeMap && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Mapa Narrativo</h2>
+              <button
+                onClick={() => setShowNarrativeMap(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+              <p className="text-gray-700">Aqui seria o mini-mapa da árvore narrativa, mostrando o tronco (enredo principal) e os galhos (subtramas).</p>
+              {/* Adicionar lógica para renderizar o mapa narrativo real */}
             </div>
           </div>
         </div>

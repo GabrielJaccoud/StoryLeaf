@@ -15,6 +15,7 @@ from src.routes.user import user_bp
 from src.routes.story import story_bp
 from src.routes.ai import ai_bp
 from src.routes.books import books_bp
+from src.routes.glossary import glossary_bp
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
@@ -31,6 +32,7 @@ app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(story_bp, url_prefix='/api')
 app.register_blueprint(ai_bp, url_prefix='/api')
 app.register_blueprint(books_bp, url_prefix='/api')
+app.register_blueprint(glossary_bp, url_prefix='/api')
 
 # Initialize database
 db.init_app(app)
@@ -70,7 +72,8 @@ def serve(path):
                     'ai': '/api/ai',
                     'books': '/api/books',
                     'progress': '/api/user/progress',
-                    'achievements': '/api/achievements'
+                    'achievements': '/api/achievements',
+                    'glossary': '/api/glossary/<term>'
                 }
             })
 

@@ -18,15 +18,15 @@
 
 ## 🚧 Fase 3A: StoryLeaf READ - A Floresta de Histórias (8 semanas)
 
-### Semana 1-2: Interface Básica
-- [ ] Criar página /read com biblioteca visual
-- [ ] Implementar vista 3D interativa da floresta
-- [ ] Desenvolver sistema de árvores representando livros
-- [ ] Criar filtros inteligentes (clima, crescimento, frutos)
-- [ ] Implementar leitor clássico básico
-- [ ] Adicionar sistema de progresso orgânico
+### ✅ Semana 1-2: Interface Básica
+- [x] Criar página /read com biblioteca visual
+- [x] Implementar vista 3D interativa da floresta
+- [x] Desenvolver sistema de árvores representando livros
+- [x] Criar filtros inteligentes (clima, crescimento, frutos)
+- [x] Implementar leitor clássico básico
+- [x] Adicionar sistema de progresso orgânico
 
-### Semana 3-4: Interatividade
+### 🚧 Semana 3-4: Interatividade
 - [ ] Implementar palavras-chave interativas
 - [ ] Criar glossário com ilustrações
 - [ ] Desenvolver mini-mapas narrativos
