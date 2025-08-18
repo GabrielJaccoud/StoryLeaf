@@ -14,3 +14,7 @@ nohup: ignoring input
 127.0.0.1 - - [17/Aug/2025 00:37:14] "GET /api/user/progress HTTP/1.1" 200 -
 127.0.0.1 - - [17/Aug/2025 00:37:21] "GET /api/books/1/content HTTP/1.1" 200 -
 127.0.0.1 - - [17/Aug/2025 00:37:21] "GET /api/books/1/content HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2025 09:18:40] "GET /api/books HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2025 09:18:40] "GET /api/user/progress HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2025 09:18:46] "GET /api/books/1/content HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2025 09:18:46] "GET /api/books/1/content HTTP/1.1" 200 -

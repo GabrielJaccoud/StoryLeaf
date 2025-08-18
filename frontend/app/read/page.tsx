@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ARScene from '../../components/ARScene';
 
 interface Book {
   id: number;
@@ -40,6 +41,7 @@ export default function ReadPage() {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tempestade' | 'primavera' | 'neblina'>('all');
   const [viewMode, setViewMode] = useState<'forest' | 'grid'>('forest');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [showAR, setShowAR] = useState(false);
 
   // Simular dados de livros
   useEffect(() => {
@@ -105,6 +107,7 @@ export default function ReadPage() {
 
   const openBookReader = (book: Book) => {
     setSelectedBook(book);
+    setShowAR(false); // Desativa o modo RA ao abrir um novo livro
   };
 
   return (
@@ -365,7 +368,7 @@ export default function ReadPage() {
                   <p className="text-gray-600">{selectedBook.author}</p>
                 </div>
                 <button
-                  onClick={() => setSelectedBook(null)}
+                  onClick={() => { setSelectedBook(null); setShowAR(false); }}
                   className="text-gray-500 hover:text-gray-700 text-2xl"
                 >
                   ×
@@ -373,7 +376,19 @@ export default function ReadPage() {
               </div>
             </div>
             
-            <BookReader book={selectedBook} />
+            {!showAR ? (
+              <BookReader book={selectedBook} />
+            ) : (
+              <div className="relative w-full h-full">
+                <ARScene bookId={selectedBook.id} arMarkers={selectedBook.arMarkers} />
+                <button
+                  onClick={() => setShowAR(false)}
+                  className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors z-50"
+                >
+                  Sair do Modo RA
+                </button>
+              </div>
+            )}
 
           </div>
         </div>
@@ -503,7 +518,10 @@ function BookReader({ book }: Book) {
           <button className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
             {book.status === 'unread' ? '🌱 Começar Leitura' : '📖 Continuar Lendo'}
           </button>
-          <button className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+          <button 
+            onClick={() => setShowAR(true)}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+          >
             🕶️ Modo RA
           </button>
           <button 

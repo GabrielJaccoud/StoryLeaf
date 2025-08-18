@@ -115,3 +115,26 @@ O StoryLeaf está pronto para ser usado como uma plataforma funcional de criaç�
 
 **Status**: ✅ **PROJETO CONCLUÍDO COM SUCESSO**
 
+
+
+## ✅ **Semana 3-4: Interatividade - COMPLETA**
+
+### 🌳 **Funcionalidades Implementadas:**
+
+**1. Palavras-chave Interativas e Glossário**
+- ✅ Palavras-chave destacadas no texto do livro.
+- ✅ Clique na palavra-chave abre um modal com definição e ilustração (mockup).
+- ✅ Backend com rota `/api/glossary/<term>` para buscar definições.
+
+**2. Mini-mapas Narrativos**
+- ✅ Botão "Mapa Narrativo" no modal do livro.
+- ✅ Abre um modal com um mockup de mapa narrativo (tronco e galhos).
+
+**3. Hotspots Visuais**
+- ✅ Botão "Modo RA" no modal do livro (preparado para integração futura).
+
+**4. Controles de Navegação Orgânicos**
+- ✅ Botões "Continuar Lendo", "Modo RA" e "Mapa Narrativo" no modal do livro.
+
+O StoryLeaf READ agora oferece uma experiência de leitura mais rica e interativa, com as bases para futuras integrações de Realidade Aumentada.
+

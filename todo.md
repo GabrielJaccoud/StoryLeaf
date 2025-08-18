@@ -17,7 +17,6 @@
 - [x] Testar todas as funcionalidades principais
 
 ## 🚧 Fase 3A: StoryLeaf READ - A Floresta de Histórias (8 semanas)
-
 ### ✅ Semana 1-2: Interface Básica
 - [x] Criar página /read com biblioteca visual
 - [x] Implementar vista 3D interativa da floresta
@@ -26,18 +25,19 @@
 - [x] Implementar leitor clássico básico
 - [x] Adicionar sistema de progresso orgânico
 
-### 🚧 Semana 3-4: Interatividade
-- [ ] Implementar palavras-chave interativas
-- [ ] Criar glossário com ilustrações
-- [ ] Desenvolver mini-mapas narrativos
-- [ ] Adicionar hotspots visuais
-- [ ] Implementar sistema de conquistas básico
-- [ ] Criar controles de navegação orgânicos
+### ✅ Semana 3-4: Interatividade
+- [x] Implementar palavras-chave interativas
+- [x] Criar glossário com ilustrações
+- [x] Desenvolver mini-mapas narrativos
+- [x] Adicionar hotspots visuais
+- [x] Implementar sistema de conquistas básico
+- [x] Criar controles de navegação orgânicos
 
-### Semana 5-6: RA Básica
+### 🚧 Semana 5-6: RA Básica
 - [ ] Integrar WebAR (AR.js ou 8th Wall)
-- [ ] Implementar marcadores de página QR
-- [ ] Criar modelos 3D de personagens básicos
+- [ ] Implementar personagens 3D
+- [ ] Criar ambientes imersivos
+- [x] Baixar modelos 3D (falhou, tentar outra abordagem)D de personagens básicos
 - [ ] Desenvolver ambientes imersivos simples
 - [ ] Adicionar sons ambiente específicos
 
