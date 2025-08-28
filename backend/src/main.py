@@ -16,6 +16,8 @@ from src.routes.story import story_bp
 from src.routes.ai import ai_bp
 from src.routes.books import books_bp
 from src.routes.glossary import glossary_bp
+from src.routes.world_generation import world_generation_bp
+from src.routes.tree_of_life_ai import tree_of_life_ai_bp
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
@@ -33,6 +35,8 @@ app.register_blueprint(story_bp, url_prefix='/api')
 app.register_blueprint(ai_bp, url_prefix='/api')
 app.register_blueprint(books_bp, url_prefix='/api')
 app.register_blueprint(glossary_bp, url_prefix='/api')
+app.register_blueprint(world_generation_bp, url_prefix='/api')
+app.register_blueprint(tree_of_life_ai_bp, url_prefix='/api')
 
 # Initialize database
 db.init_app(app)
@@ -51,6 +55,10 @@ def health_check():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
+    # Não interceptar rotas da API
+    if path.startswith('api/'):
+        return jsonify({'error': 'API endpoint not found'}), 404
+    
     static_folder_path = app.static_folder
     if static_folder_path is None:
         return "Static folder not configured", 404
@@ -64,7 +72,7 @@ def serve(path):
         else:
             return jsonify({
                 'message': 'Welcome to StoryLeaf API',
-                'version': '1.0.0',
+                'version': '2.0.0',
                 'endpoints': {
                     'health': '/api/health',
                     'users': '/api/users',
@@ -73,7 +81,9 @@ def serve(path):
                     'books': '/api/books',
                     'progress': '/api/user/progress',
                     'achievements': '/api/achievements',
-                    'glossary': '/api/glossary/<term>'
+                    'glossary': '/api/glossary/<term>',
+                    'world_generation': '/api/worlds',
+                    'tree_of_life_ai': '/api/tree-ai'
                 }
             })
 
