@@ -18,6 +18,7 @@ from src.routes.books import books_bp
 from src.routes.glossary import glossary_bp
 from src.routes.world_generation import world_generation_bp
 from src.routes.tree_of_life_ai import tree_of_life_ai_bp
+from src.routes.mystic_audiobook import mystic_audiobook_bp
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
@@ -37,6 +38,7 @@ app.register_blueprint(books_bp, url_prefix='/api')
 app.register_blueprint(glossary_bp, url_prefix='/api')
 app.register_blueprint(world_generation_bp, url_prefix='/api')
 app.register_blueprint(tree_of_life_ai_bp, url_prefix='/api')
+app.register_blueprint(mystic_audiobook_bp, url_prefix='/api')
 
 # Initialize database
 db.init_app(app)
@@ -83,7 +85,8 @@ def serve(path):
                     'achievements': '/api/achievements',
                     'glossary': '/api/glossary/<term>',
                     'world_generation': '/api/worlds',
-                    'tree_of_life_ai': '/api/tree-ai'
+                    'tree_of_life_ai': '/api/tree-ai',
+                    'mystic_audiobook': '/api/audiobook'
                 }
             })
 

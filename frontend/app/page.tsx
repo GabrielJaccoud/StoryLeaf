@@ -1,236 +1,326 @@
 'use client';
 
-import Image from "next/image";
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Book, PenTool, GraduationCap, Sparkles, TreePine, Heart, Waves, Music, Eye, Wand2 } from 'lucide-react';
 
-export default function Home() {
-  const [apiStatus, setApiStatus] = useState<string>('checking');
+const HomePage = () => {
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [treeGrowth, setTreeGrowth] = useState(0);
+  const [particles, setParticles] = useState<Array<{id: number, x: number, y: number, delay: number}>>([]);
 
   useEffect(() => {
-    // Check API health
-    fetch('/api/health')
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'healthy') {
-          setApiStatus('healthy');
-        } else {
-          setApiStatus('error');
-        }
-      })
-      .catch(() => setApiStatus('error'));
+    // Animação de crescimento da árvore
+    const growthTimer = setTimeout(() => {
+      setTreeGrowth(100);
+    }, 500);
+
+    // Gerar partículas flutuantes
+    const particleArray = Array.from({length: 20}, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 3
+    }));
+    setParticles(particleArray);
+
+    return () => clearTimeout(growthTimer);
   }, []);
 
+  const sections = [
+    {
+      id: 'read',
+      title: 'READ 2.0',
+      subtitle: 'Jardim de Histórias',
+      description: 'Explore mundos literários em 3D com audiolivros místicos',
+      icon: Book,
+      color: 'from-blue-400 to-cyan-500',
+      features: ['Exploração 3D', 'Audiolivros Místicos', 'Frequências de Cura'],
+      path: '/read'
+    },
+    {
+      id: 'write',
+      title: 'WRITE 2.0',
+      subtitle: 'Laboratório Criativo',
+      description: 'Crie mundos com IA generativa e colaboração inteligente',
+      icon: PenTool,
+      color: 'from-green-400 to-emerald-500',
+      features: ['Geração de Mundos', 'IA Colaborativa', 'Criação Imersiva'],
+      path: '/write'
+    },
+    {
+      id: 'learn',
+      title: 'LEARN 2.0',
+      subtitle: 'Clareira do Conhecimento',
+      description: 'Aprendizado adaptativo com realidade aumentada',
+      icon: GraduationCap,
+      color: 'from-yellow-400 to-orange-500',
+      features: ['RA Educativa', 'Aprendizado Adaptativo', 'Gamificação'],
+      path: '/learn'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
+      
+      {/* Partículas flutuantes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="absolute w-1 h-1 bg-white/30 rounded-full animate-pulse"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              animationDelay: `${particle.delay}s`,
+              animationDuration: '3s'
+            }}
+          />
+        ))}
+      </div>
+
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-green-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">🌿</span>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900">StoryLeaf</h1>
+      <header className="relative z-10 p-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+              <TreePine className="w-6 h-6 text-white" />
             </div>
-            <nav className="hidden md:flex space-x-8">
-              <Link href="#features" className="text-gray-600 hover:text-green-600 transition-colors">
-                Funcionalidades
-              </Link>
-              <Link href="#about" className="text-gray-600 hover:text-green-600 transition-colors">
-                Sobre
-              </Link>
-              <Link href="/write" className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-                Começar a Escrever
-              </Link>
-            </nav>
+            <div>
+              <h1 className="text-2xl font-bold text-white">StoryLeaf 2.0</h1>
+              <p className="text-white/70 text-sm">Jardim Vivo de Realidades Literárias</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full">
+              <Sparkles className="w-4 h-4 text-yellow-400" />
+              <span className="text-white/80 text-sm">Powered by Árvore da Vida AI</span>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="mb-8">
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              No StoryLeaf, cada palavra é uma{" "}
-              <span className="text-green-500">semente</span>
+      {/* Árvore da Vida AI Central */}
+      <div className="relative z-10 flex-1 flex items-center justify-center px-6 py-12">
+        <div className="max-w-6xl w-full">
+          
+          {/* Título Principal */}
+          <div className="text-center mb-12">
+            <h2 className="text-5xl md:text-7xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Árvore da Vida AI
             </h2>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto">
-              Cada história, uma árvore. E cada leitor, um jardineiro da imaginação.
-            </p>
-            <p className="text-lg text-gray-500 mb-12 max-w-3xl mx-auto">
-              Plataforma revolucionária para criar, ler e aprender com histórias, 
-              utilizando a metáfora da árvore onde histórias crescem como folhas.
+            <p className="text-xl text-white/80 max-w-2xl mx-auto">
+              Uma inteligência central que cultiva histórias, nutre criatividade e floresce conhecimento
             </p>
           </div>
 
-          {/* API Status */}
-          <div className="mb-8">
-            <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
-              apiStatus === 'healthy' ? 'bg-green-100 text-green-800' :
-              apiStatus === 'error' ? 'bg-red-100 text-red-800' :
-              'bg-yellow-100 text-yellow-800'
-            }`}>
-              <div className={`w-2 h-2 rounded-full mr-2 ${
-                apiStatus === 'healthy' ? 'bg-green-500' :
-                apiStatus === 'error' ? 'bg-red-500' :
-                'bg-yellow-500'
-              }`}></div>
-              API Status: {apiStatus === 'healthy' ? 'Online' : apiStatus === 'error' ? 'Offline' : 'Verificando...'}
+          {/* Árvore Interativa */}
+          <div className="relative w-full max-w-4xl mx-auto h-96 mb-12">
+            
+            {/* Tronco da Árvore */}
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2">
+              <div 
+                className="w-8 bg-gradient-to-t from-amber-700 to-amber-600 rounded-t-lg transition-all duration-2000 ease-out"
+                style={{ height: `${treeGrowth * 1.2}px` }}
+              />
             </div>
+
+            {/* Copa da Árvore - Centro */}
+            <div 
+              className="absolute top-8 left-1/2 transform -translate-x-1/2 transition-all duration-2000 ease-out"
+              style={{ 
+                opacity: treeGrowth / 100,
+                transform: `translateX(-50%) scale(${treeGrowth / 100})`
+              }}
+            >
+              <div className="w-32 h-32 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-full flex items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/20 animate-pulse"></div>
+                <Sparkles className="w-12 h-12 text-white relative z-10" />
+                
+                {/* Pulso de energia */}
+                <div className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping"></div>
+              </div>
+            </div>
+
+            {/* Galhos e Seções */}
+            {sections.map((section, index) => {
+              const positions = [
+                { top: '20%', left: '15%', rotation: '-30deg' }, // read
+                { top: '20%', right: '15%', rotation: '30deg' }, // write  
+                { bottom: '25%', left: '25%', rotation: '-15deg' } // learn
+              ];
+              
+              const position = positions[index];
+              
+              return (
+                <div
+                  key={section.id}
+                  className="absolute transition-all duration-1000 ease-out"
+                  style={{
+                    ...position,
+                    opacity: treeGrowth / 100,
+                    transform: `scale(${treeGrowth / 100})`,
+                    transitionDelay: `${index * 200}ms`
+                  }}
+                >
+                  {/* Galho */}
+                  <div 
+                    className="w-16 h-2 bg-gradient-to-r from-amber-600 to-green-600 rounded-full origin-right"
+                    style={{ transform: position.rotation }}
+                  />
+                  
+                  {/* Folhas/Seção */}
+                  <Link href={section.path}>
+                    <div
+                      className={`
+                        w-24 h-24 bg-gradient-to-br ${section.color} rounded-full 
+                        flex items-center justify-center cursor-pointer
+                        transform transition-all duration-300 hover:scale-110 hover:shadow-2xl
+                        ${activeSection === section.id ? 'scale-110 shadow-2xl' : ''}
+                        relative overflow-hidden group
+                      `}
+                      onMouseEnter={() => setActiveSection(section.id)}
+                      onMouseLeave={() => setActiveSection(null)}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent to-white/20 group-hover:to-white/30 transition-all duration-300"></div>
+                      <section.icon className="w-8 h-8 text-white relative z-10" />
+                      
+                      {/* Efeito de brilho */}
+                      <div className="absolute inset-0 rounded-full border-2 border-white/20 group-hover:border-white/40 transition-all duration-300"></div>
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
           </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link 
-              href="/write"
-              className="bg-green-500 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-600 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              🌱 Plantar Nova História
-            </Link>
-            <Link 
-              href="/read"
-              className="bg-white text-green-600 border-2 border-green-500 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              📚 Explorar Floresta
-            </Link>
-          </div>
+          {/* Informações da Seção Ativa */}
+          {activeSection && (
+            <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto transition-all duration-300">
+              {(() => {
+                const section = sections.find(s => s.id === activeSection);
+                if (!section) return null;
+                
+                return (
+                  <div className="text-center">
+                    <div className={`w-16 h-16 bg-gradient-to-br ${section.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                      <section.icon className="w-8 h-8 text-white" />
+                    </div>
+                    
+                    <h3 className="text-2xl font-bold text-white mb-2">{section.title}</h3>
+                    <h4 className="text-lg text-white/80 mb-4">{section.subtitle}</h4>
+                    <p className="text-white/70 mb-6">{section.description}</p>
+                    
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
+                      {section.features.map((feature, index) => (
+                        <span 
+                          key={index}
+                          className="px-3 py-1 bg-white/10 rounded-full text-white/80 text-sm"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <Link 
+                      href={section.path}
+                      className={`
+                        inline-flex items-center space-x-2 px-6 py-3 
+                        bg-gradient-to-r ${section.color} hover:shadow-lg
+                        rounded-lg text-white font-semibold transition-all duration-300
+                      `}
+                    >
+                      <span>Explorar {section.title}</span>
+                      <section.icon className="w-4 h-4" />
+                    </Link>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
-          {/* Tree Metaphor Visual */}
-          <div className="relative max-w-4xl mx-auto">
-            <div className="text-6xl mb-4">🌳</div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-lg">
-                <div className="text-3xl mb-3">🌱</div>
-                <h3 className="font-bold text-gray-900 mb-2">Raiz</h3>
-                <p className="text-gray-600 text-sm">Ideia original e inspiração</p>
+          {/* Funcionalidades Especiais */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+            
+            {/* Audiolivros Místicos */}
+            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-black/30 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Music className="w-6 h-6 text-white" />
               </div>
-              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-lg">
-                <div className="text-3xl mb-3">🌲</div>
-                <h3 className="font-bold text-gray-900 mb-2">Tronco</h3>
-                <p className="text-gray-600 text-sm">Enredo principal</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Audiolivros Místicos</h3>
+              <p className="text-white/70 text-sm mb-4">
+                Narração com frequências terapêuticas de 432Hz para cura e transformação
+              </p>
+              <div className="flex items-center justify-center space-x-2 text-white/60 text-xs">
+                <Heart className="w-3 h-3" />
+                <span>Bem-estar</span>
+                <Waves className="w-3 h-3" />
+                <span>Harmonia</span>
               </div>
-              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-lg">
-                <div className="text-3xl mb-3">🌿</div>
-                <h3 className="font-bold text-gray-900 mb-2">Galhos</h3>
-                <p className="text-gray-600 text-sm">Ramificações narrativas</p>
+            </div>
+
+            {/* Exploração 3D */}
+            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-black/30 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Eye className="w-6 h-6 text-white" />
               </div>
-              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-lg">
-                <div className="text-3xl mb-3">🍃</div>
-                <h3 className="font-bold text-gray-900 mb-2">Folhas</h3>
-                <p className="text-gray-600 text-sm">Capítulos e momentos</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Mundos Interativos</h3>
+              <p className="text-white/70 text-sm mb-4">
+                Navegue pelos cenários das histórias em ambientes 3D imersivos
+              </p>
+              <div className="flex items-center justify-center space-x-2 text-white/60 text-xs">
+                <Sparkles className="w-3 h-3" />
+                <span>Imersão</span>
+                <Eye className="w-3 h-3" />
+                <span>Exploração</span>
+              </div>
+            </div>
+
+            {/* IA Generativa */}
+            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-black/30 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Wand2 className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Criação com IA</h3>
+              <p className="text-white/70 text-sm mb-4">
+                Gere mundos, personagens e histórias com modelos generativos avançados
+              </p>
+              <div className="flex items-center justify-center space-x-2 text-white/60 text-xs">
+                <Wand2 className="w-3 h-3" />
+                <span>Criatividade</span>
+                <Sparkles className="w-3 h-3" />
+                <span>Inovação</span>
               </div>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Funcionalidades Principais
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Descubra as ferramentas que transformarão sua experiência de escrita e leitura
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* StoryLeaf WRITE */}
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              <div className="text-4xl mb-4">🖋️</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">StoryLeaf WRITE</h3>
-              <p className="text-gray-600 mb-4">O Jardim de Ideias com IA para gerar enredos e desenvolver personagens</p>
-              <ul className="text-sm text-gray-500 space-y-1">
-                <li>• Semente de História com IA</li>
-                <li>• Mapas de Personagens</li>
-                <li>• Colaboração em Tempo Real</li>
-              </ul>
-            </div>
-
-            {/* StoryLeaf READ */}
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              <div className="text-4xl mb-4">📚</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">StoryLeaf read</h3>
-              <p className="text-gray-600 mb-4">A Floresta de Histórias com experiência imersiva e interativa</p>
-              <ul className="text-sm text-gray-500 space-y-1">
-                <li>• Biblioteca Visual</li>
-                <li>• Narrativa Interativa</li>
-                <li>• Realidade Aumentada</li>
-              </ul>
-            </div>
-
-            {/* StoryLeaf LEARN */}
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              <div className="text-4xl mb-4">🎓</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">StoryLeaf LEARN</h3>
-              <p className="text-gray-600 mb-4">Folhas de Aprendizado com gamificação educacional</p>
-              <ul className="text-sm text-gray-500 space-y-1">
-                <li>• Árvore de Conhecimento</li>
-                <li>• Integração LMS</li>
-                <li>• Conteúdo Adaptativo</li>
-              </ul>
-            </div>
-
-            {/* StoryLeaf CONVERT */}
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              <div className="text-4xl mb-4">🔄</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">StoryLeaf CONVERT</h3>
-              <p className="text-gray-600 mb-4">Transforme livros em experiências vividas</p>
-              <ul className="text-sm text-gray-500 space-y-1">
-                <li>• Importação Universal</li>
-                <li>• Templates Criativos</li>
-                <li>• Gamificação Embutida</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+      </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">🌿</span>
-                </div>
-                <h3 className="text-xl font-bold">StoryLeaf</h3>
-              </div>
-              <p className="text-gray-400 mb-4 max-w-md">
-                Onde histórias crescem e florescem. Transformando a experiência de leitura e escrita.
-              </p>
-              <p className="text-sm text-gray-500">
-                © 2025 StoryLeaf. Todos os direitos reservados.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Produto</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/write" className="hover:text-white transition-colors">Escrever</Link></li>
-                <li><Link href="/read" className="hover:text-white transition-colors">Ler</Link></li>
-                <li><Link href="/learn" className="hover:text-white transition-colors">Aprender</Link></li>
-                <li><Link href="/convert" className="hover:text-white transition-colors">Converter</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Recursos</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/docs" className="hover:text-white transition-colors">Documentação</Link></li>
-                <li><Link href="/api" className="hover:text-white transition-colors">API</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors">Suporte</Link></li>
-              </ul>
-            </div>
-          </div>
+      <footer className="relative z-10 p-6 bg-black/20 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-white/60 text-sm">
+            © 2025 StoryLeaf 2.0 - Jardim Vivo de Realidades Literárias
+          </p>
+          <p className="text-white/40 text-xs mt-1">
+            Cultivado pela Árvore da Vida AI • Onde histórias ganham vida
+          </p>
         </div>
       </footer>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
-}
+};
+
+export default HomePage;

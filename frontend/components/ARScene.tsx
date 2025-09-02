@@ -102,4 +102,3 @@ const ARScene: React.FC<ARSceneProps> = ({ bookId, arMarkers }) => {
 
 export default ARScene;
 
-
