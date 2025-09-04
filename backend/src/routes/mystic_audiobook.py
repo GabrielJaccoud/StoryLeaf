@@ -14,6 +14,9 @@ import subprocess
 
 mystic_audiobook_bp = Blueprint('mystic_audiobook', __name__)
 
+# Diretório onde estão os livros processados
+PROCESSED_BOOKS_DIR = '/home/ubuntu/StoryLeaf/processed_books'
+
 # Configurações de frequências terapêuticas
 HEALING_FREQUENCIES = {
     "174": {"name": "Alívio da Dor", "description": "Frequência para redução da dor e tensão"},
@@ -426,4 +429,193 @@ def mix_narration_with_soundtrack(narration_path, soundtrack_path, output_path):
     # Em produção, usaria ferramentas como FFmpeg
     # para mixar narração e trilha sonora
     pass
+
+
+
+@mystic_audiobook_bp.route('/api/audiobook/books/<book_id>/generate', methods=['POST'])
+def generate_book_audiobook(book_id):
+    """
+    Gera audiobook místico para um livro específico processado
+    """
+    try:
+        data = request.get_json()
+        
+        # Verifica se o livro existe
+        book_file = os.path.join(PROCESSED_BOOKS_DIR, f"{book_id}.md")
+        if not os.path.exists(book_file):
+            return jsonify({"error": "Livro não encontrado"}), 404
+        
+        # Carrega o conteúdo do livro
+        with open(book_file, 'r', encoding='utf-8') as f:
+            book_content = f.read()
+        
+        # Parâmetros de configuração
+        voice_type = data.get('voice_type', 'female_voice')
+        healing_frequency = data.get('healing_frequency', '432')
+        soundtrack_type = data.get('soundtrack_type', 'spiritual')
+        section_id = data.get('section_id', None)  # Para gerar seção específica
+        
+        # Divide o conteúdo em seções se necessário
+        if section_id:
+            sections = split_book_into_sections(book_content)
+            if section_id > len(sections):
+                return jsonify({"error": "Seção não encontrada"}), 404
+            content_to_generate = sections[section_id - 1]
+        else:
+            content_to_generate = book_content[:2000]  # Limita para demonstração
+        
+        # Gera o audiobook
+        audiobook_id = str(uuid.uuid4())
+        
+        # Simulação de geração (em produção, usaria TTS real)
+        audiobook_data = {
+            "id": audiobook_id,
+            "book_id": book_id,
+            "title": format_book_title(book_id),
+            "voice_type": voice_type,
+            "healing_frequency": healing_frequency,
+            "soundtrack_type": soundtrack_type,
+            "section_id": section_id,
+            "status": "generating",
+            "progress": 0,
+            "estimated_completion": 60,  # segundos
+            "created_at": datetime.now().isoformat()
+        }
+        
+        return jsonify({
+            "success": True,
+            "audiobook_id": audiobook_id,
+            "status": "initiated",
+            "message": "Geração de audiobook iniciada. Use /api/audiobook/status/{audiobook_id} para acompanhar."
+        }), 202
+        
+    except Exception as e:
+        return jsonify({"error": f"Erro na geração: {str(e)}"}), 500
+
+@mystic_audiobook_bp.route('/api/audiobook/books/<book_id>/sections', methods=['GET'])
+def get_book_sections_for_audio(book_id):
+    """
+    Retorna as seções do livro disponíveis para geração de audiobook
+    """
+    try:
+        book_file = os.path.join(PROCESSED_BOOKS_DIR, f"{book_id}.md")
+        if not os.path.exists(book_file):
+            return jsonify({"error": "Livro não encontrado"}), 404
+        
+        with open(book_file, 'r', encoding='utf-8') as f:
+            book_content = f.read()
+        
+        sections = split_book_into_sections(book_content)
+        
+        sections_info = []
+        for i, section in enumerate(sections, 1):
+            sections_info.append({
+                "id": i,
+                "title": f"Seção {i}",
+                "word_count": len(section.split()),
+                "estimated_duration": estimate_audio_duration(section),
+                "preview": section[:100] + "..."
+            })
+        
+        return jsonify({
+            "success": True,
+            "book_id": book_id,
+            "title": format_book_title(book_id),
+            "sections": sections_info,
+            "total_sections": len(sections_info)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": f"Erro ao carregar seções: {str(e)}"}), 500
+
+@mystic_audiobook_bp.route('/api/audiobook/books/<book_id>/preview', methods=['POST'])
+def generate_book_preview(book_id):
+    """
+    Gera prévia de audiobook para um livro específico
+    """
+    try:
+        data = request.get_json()
+        
+        book_file = os.path.join(PROCESSED_BOOKS_DIR, f"{book_id}.md")
+        if not os.path.exists(book_file):
+            return jsonify({"error": "Livro não encontrado"}), 404
+        
+        with open(book_file, 'r', encoding='utf-8') as f:
+            book_content = f.read()
+        
+        # Pega apenas o início do livro para prévia
+        preview_content = book_content[:500]  # Primeiras 500 caracteres
+        
+        voice_type = data.get('voice_type', 'female_voice')
+        healing_frequency = data.get('healing_frequency', '432')
+        
+        # Gera prévia simulada
+        preview_id = str(uuid.uuid4())
+        
+        return jsonify({
+            "success": True,
+            "preview_id": preview_id,
+            "preview_url": f"/api/audiobook/preview/{preview_id}",
+            "duration": 30,  # 30 segundos de prévia
+            "voice_type": voice_type,
+            "healing_frequency": healing_frequency,
+            "book_title": format_book_title(book_id)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": f"Erro na prévia: {str(e)}"}), 500
+
+def split_book_into_sections(content):
+    """
+    Divide o conteúdo do livro em seções para audiobook
+    """
+    # Divide por parágrafos e agrupa em seções de ~1000 palavras
+    paragraphs = content.split('\n\n')
+    sections = []
+    current_section = []
+    words_per_section = 1000
+    
+    current_word_count = 0
+    
+    for paragraph in paragraphs:
+        paragraph_words = len(paragraph.split())
+        
+        if current_word_count + paragraph_words > words_per_section and current_section:
+            sections.append('\n\n'.join(current_section))
+            current_section = [paragraph]
+            current_word_count = paragraph_words
+        else:
+            current_section.append(paragraph)
+            current_word_count += paragraph_words
+    
+    # Adiciona a última seção
+    if current_section:
+        sections.append('\n\n'.join(current_section))
+    
+    return sections
+
+def estimate_audio_duration(text):
+    """
+    Estima duração do áudio baseado no texto (assumindo 150 palavras por minuto)
+    """
+    word_count = len(text.split())
+    duration_minutes = max(1, word_count / 150)
+    return round(duration_minutes, 1)
+
+def format_book_title(book_id):
+    """
+    Formata o ID do livro em um título legível
+    """
+    title_mapping = {
+        "Alice_in_Wonderland": "Alice no País das Maravilhas",
+        "AIlhadoTesouro": "A Ilha do Tesouro",
+        "DomQuixote": "Dom Quixote",
+        "PeterPan": "Peter Pan",
+        "OMágicodeOz": "O Mágico de Oz",
+        "OJardimSecreto": "O Jardim Secreto",
+        "iracema": "Iracema",
+        "ViagemaoCentrodaTerra": "Viagem ao Centro da Terra"
+    }
+    
+    return title_mapping.get(book_id, book_id.replace('_', ' ').replace('(', ' - ').replace(')', ''))
 
