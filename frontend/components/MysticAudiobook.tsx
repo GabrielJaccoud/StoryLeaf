@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -14,15 +15,13 @@ interface AudiobookSettings {
 interface MysticAudiobookProps {
   bookId: string;
   bookTitle: string;
-  bookContent: string;
   onClose?: () => void;
 }
 
-const MysticAudiobook: React.FC<MysticAudiobookProps> = ({ 
-  bookId, 
-  bookTitle, 
-  bookContent, 
-  onClose 
+const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
+  bookId,
+  bookTitle,
+  onClose
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -34,9 +33,12 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('');
-  
+  const [bookContent, setBookContent] = useState<string>('');
+  const [loadingBookContent, setLoadingBookContent] = useState<boolean>(true);
+  const [errorBookContent, setErrorBookContent] = useState<string | null>(null);
+
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   const [settings, setSettings] = useState<AudiobookSettings>({
     voice_type: 'female_narrator',
     soundtrack_type: 'spiritual',
@@ -98,13 +100,46 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
     };
   }, [audioUrl]);
 
+  useEffect(() => {
+    const fetchBookContentForAudiobook = async () => {
+      try {
+        setLoadingBookContent(true);
+        const response = await fetch(`/api/library/${bookId}/content`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.success && data.book && data.book.sections) {
+          // Concatenar o conteúdo de todas as seções para o audiobook
+          const fullContent = data.book.sections.map((section: any) => section.content).join(' ');
+          setBookContent(fullContent);
+        } else {
+          setErrorBookContent('Formato de dados do livro inválido para audiobook.');
+        }
+      } catch (err) {
+        console.error('Erro ao buscar conteúdo do livro para audiobook:', err);
+        setErrorBookContent('Não foi possível carregar o conteúdo do livro para audiobook.');
+      } finally {
+        setLoadingBookContent(false);
+      }
+    };
+
+    if (bookId) {
+      fetchBookContentForAudiobook();
+    }
+  }, [bookId]);
+
   const generateAudiobook = async () => {
+    if (!bookContent) {
+      setCurrentStep('Conteúdo do livro não disponível.');
+      return;
+    }
+
     setIsGenerating(true);
     setGenerationProgress(0);
     setCurrentStep('Iniciando geração...');
 
     try {
-      // Simula o processo de geração
       const steps = [
         'Analisando o texto...',
         'Gerando narração com voz selecionada...',
@@ -120,12 +155,11 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-      // Simula a geração do audiolivro
       const response = await fetch('/api/audiobook/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: bookContent.substring(0, 1000), // Primeiros 1000 caracteres para demo
+          text: bookContent.substring(0, 1000), // Usar o conteúdo completo ou uma parte
           voice_type: settings.voice_type,
           soundtrack_type: settings.soundtrack_type,
           healing_frequency: settings.healing_frequency,
@@ -181,6 +215,34 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
     }
   };
 
+  if (loadingBookContent) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white text-lg">Carregando conteúdo do livro para audiobook...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (errorBookContent) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-900 to-gray-900 flex items-center justify-center">
+        <div className="text-center text-white">
+          <h2 className="text-2xl font-bold mb-4">Erro ao Carregar Conteúdo</h2>
+          <p className="mb-4">{errorBookContent}</p>
+          <button
+            onClick={onClose}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+          >
+            Retornar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
       {/* Fundo animado */}
@@ -200,7 +262,7 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
               <p className="text-white/70">{bookTitle}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowSettings(!showSettings)}
@@ -208,7 +270,7 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
             >
               <Settings className="w-5 h-5 text-white" />
             </button>
-            
+
             {onClose && (
               <button
                 onClick={onClose}
@@ -224,18 +286,18 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
       {/* Conteúdo principal */}
       <div className="relative z-10 flex-1 p-6">
         <div className="max-w-4xl mx-auto">
-          
+
           {/* Painel de configurações */}
           {showSettings && (
             <div className="mb-6 bg-black/40 backdrop-blur-sm rounded-lg p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Configurações Místicas</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-white/70 text-sm mb-2">Voz do Narrador</label>
                   <select
                     value={settings.voice_type}
-                    onChange={(e) => setSettings({...settings, voice_type: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, voice_type: e.target.value })}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-400"
                   >
                     {Object.entries(voiceOptions).map(([key, label]) => (
@@ -243,12 +305,12 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-white/70 text-sm mb-2">Trilha Sonora</label>
                   <select
                     value={settings.soundtrack_type}
-                    onChange={(e) => setSettings({...settings, soundtrack_type: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, soundtrack_type: e.target.value })}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-400"
                   >
                     {Object.entries(soundtrackOptions).map(([key, label]) => (
@@ -256,12 +318,12 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-white/70 text-sm mb-2">Frequência de Cura</label>
                   <select
                     value={settings.healing_frequency}
-                    onChange={(e) => setSettings({...settings, healing_frequency: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, healing_frequency: e.target.value })}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-400"
                   >
                     {Object.entries(frequencyOptions).map(([key, label]) => (
@@ -275,7 +337,7 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
 
           {/* Player principal */}
           <div className="bg-black/40 backdrop-blur-sm rounded-lg p-8">
-            
+
             {/* Visualização de frequência */}
             <div className="text-center mb-8">
               <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center relative overflow-hidden">
@@ -286,7 +348,7 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
                   <div className="text-xs opacity-70">Cura</div>
                 </div>
               </div>
-              
+
               <h3 className="text-xl font-semibold text-white mb-2">
                 {frequencyOptions[settings.healing_frequency as keyof typeof frequencyOptions]}
               </h3>
@@ -309,7 +371,7 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
                 ) : (
                   <div className="space-y-4">
                     <div className="w-full bg-white/20 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${generationProgress}%` }}
                       ></div>
@@ -325,7 +387,7 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
             {audioUrl && (
               <div className="space-y-6">
                 <audio ref={audioRef} src={audioUrl} />
-                
+
                 {/* Controles principais */}
                 <div className="flex items-center justify-center space-x-6">
                   <button
@@ -338,7 +400,7 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
                       <Play className="w-8 h-8 text-white ml-1" />
                     )}
                   </button>
-                  
+
                   <button
                     onClick={downloadAudiobook}
                     className="p-3 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
@@ -375,7 +437,7 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
                       <Volume2 className="w-5 h-5 text-white" />
                     )}
                   </button>
-                  
+
                   <input
                     type="range"
                     min="0"
@@ -396,13 +458,13 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
                 <h4 className="text-white font-medium mb-1">Bem-estar</h4>
                 <p className="text-white/60 text-xs">Promove relaxamento profundo</p>
               </div>
-              
+
               <div className="text-center p-4 bg-white/5 rounded-lg">
                 <Waves className="w-6 h-6 text-blue-400 mx-auto mb-2" />
                 <h4 className="text-white font-medium mb-1">Harmonia</h4>
                 <p className="text-white/60 text-xs">Equilibra energia e emoções</p>
               </div>
-              
+
               <div className="text-center p-4 bg-white/5 rounded-lg">
                 <Sparkles className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
                 <h4 className="text-white font-medium mb-1">Transformação</h4>
@@ -412,32 +474,10 @@ const MysticAudiobook: React.FC<MysticAudiobookProps> = ({
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: linear-gradient(45deg, #a855f7, #ec4899);
-          cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .slider::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: linear-gradient(45deg, #a855f7, #ec4899);
-          cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-      `}</style>
     </div>
   );
 };
 
 export default MysticAudiobook;
+
 

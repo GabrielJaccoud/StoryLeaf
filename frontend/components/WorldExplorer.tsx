@@ -55,7 +55,7 @@ const WorldExplorer: React.FC<WorldExplorerProps> = ({ worldId, storyTitle, onEx
       setIsLoading(true);
       // Simulação de carregamento de dados do mundo
       // Em produção, seria uma chamada para a API de geração de mundos
-      const response = await fetch(`/api/worlds/${worldId}`);
+      const response = await fetch(`/api/library/${worldId}/world-data`);
       if (response.ok) {
         const data = await response.json();
         setWorldData(data.world);

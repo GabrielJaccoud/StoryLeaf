@@ -82,14 +82,13 @@ def serve(path):
                     'users': '/api/users',
                     'stories': '/api/stories',
                     'ai': '/api/ai',
-                    'books': '/api/books',
-                    'progress': '/api/user/progress',
-                    'achievements': '/api/achievements',
+                    'books_user_progress': '/api/user/progress',
+                    'books_achievements': '/api/achievements',
                     'glossary': '/api/glossary/<term>',
                     'world_generation': '/api/worlds',
                     'tree_of_life_ai': '/api/tree-ai',
                     'mystic_audiobook': '/api/audiobook',
-                    'book_integration': '/api/books'
+                    'book_library': '/api/library'
                 }
             })
 

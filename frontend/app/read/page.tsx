@@ -1,9 +1,11 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Book, Play, Eye, Sparkles, ArrowLeft } from 'lucide-react';
+import { Book, Play, Eye, Sparkles, ArrowLeft, Headphones } from 'lucide-react';
 import BookReader from '../../components/BookReader';
 import WorldExplorer from '../../components/WorldExplorer';
+import MysticAudiobook from '../../components/MysticAudiobook';
 
 interface Book {
   id: string;
@@ -11,17 +13,14 @@ interface Book {
   author: string;
   description: string;
   cover_url?: string;
-  content: string;
-  reading_time: number;
-  difficulty: string;
-  genre: string;
   world_available?: boolean;
+  audiobook_available?: boolean;
 }
 
 const ReadPage = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'reading' | 'exploring'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'reading' | 'exploring' | 'audiobook'>('list');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,7 +29,7 @@ const ReadPage = () => {
 
   const fetchBooks = async () => {
     try {
-      const response = await fetch('/api/books');
+      const response = await fetch("/api/library/list");
       if (response.ok) {
         const data = await response.json();
         setBooks(data.books || []);
@@ -38,37 +37,28 @@ const ReadPage = () => {
         // Dados simulados para demonstração
         setBooks([
           {
-            id: 'alice_wonderland',
+            id: 'Alice_in_Wonderland',
             title: 'Alice no País das Maravilhas',
             author: 'Lewis Carroll',
             description: 'Uma aventura mágica através de um mundo fantástico cheio de criaturas extraordinárias.',
-            content: 'Alice estava começando a ficar muito cansada de estar sentada ao lado de sua irmã...',
-            reading_time: 45,
-            difficulty: 'Intermediário',
-            genre: 'Fantasia',
-            world_available: true
+            world_available: true,
+            audiobook_available: true
           },
           {
-            id: 'treasure_island',
+            id: 'AIlhadoTesouro(RobertLouisStevenson)',
             title: 'A Ilha do Tesouro',
             author: 'Robert Louis Stevenson',
             description: 'Uma emocionante aventura pirata em busca de tesouros perdidos.',
-            content: 'Squire Trelawney, Dr. Livesey, e o resto desses cavalheiros...',
-            reading_time: 60,
-            difficulty: 'Intermediário',
-            genre: 'Aventura',
-            world_available: true
+            world_available: true,
+            audiobook_available: true
           },
           {
-            id: 'secret_garden',
+            id: 'OJardimSecreto(FrancesHodgsonBurnett)',
             title: 'O Jardim Secreto',
             author: 'Frances Hodgson Burnett',
             description: 'A história de uma menina que descobre um jardim mágico escondido.',
-            content: 'Quando Mary Lennox foi enviada para Misselthwaite Manor...',
-            reading_time: 50,
-            difficulty: 'Fácil',
-            genre: 'Drama',
-            world_available: false
+            world_available: false,
+            audiobook_available: true
           }
         ]);
       }
@@ -89,6 +79,11 @@ const ReadPage = () => {
     setViewMode('exploring');
   };
 
+  const handleListenAudiobook = (book: Book) => {
+    setSelectedBook(book);
+    setViewMode('audiobook');
+  };
+
   const handleBackToList = () => {
     setSelectedBook(null);
     setViewMode('list');
@@ -106,7 +101,7 @@ const ReadPage = () => {
   }
 
   if (viewMode === 'reading' && selectedBook) {
-    return <BookReader book={selectedBook} onBack={handleBackToList} />;
+    return <BookReader bookId={selectedBook.id} bookTitle={selectedBook.title} onBack={handleBackToList} />;
   }
 
   if (viewMode === 'exploring' && selectedBook) {
@@ -115,6 +110,16 @@ const ReadPage = () => {
         worldId={selectedBook.id}
         storyTitle={selectedBook.title}
         onExit={handleBackToList}
+      />
+    );
+  }
+
+  if (viewMode === 'audiobook' && selectedBook) {
+    return (
+      <MysticAudiobook
+        bookId={selectedBook.id}
+        bookTitle={selectedBook.title}
+        onClose={handleBackToList}
       />
     );
   }
@@ -148,7 +153,7 @@ const ReadPage = () => {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Biblioteca Interativa</h2>
           <p className="text-gray-600">
-            Escolha entre leitura tradicional ou exploração imersiva de mundos 3D
+            Escolha entre leitura tradicional, exploração imersiva de mundos 3D ou audiolivros místicos
           </p>
         </div>
 
@@ -182,9 +187,8 @@ const ReadPage = () => {
                 </p>
                 
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                  <span className="bg-gray-100 px-2 py-1 rounded">{book.genre}</span>
-                  <span>{book.reading_time} min</span>
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">{book.difficulty}</span>
+                  {/* Removido reading_time e difficulty pois não estão na API */}
+                  <span className="bg-gray-100 px-2 py-1 rounded">{book.genre || 'Fantasia'}</span>
                 </div>
 
                 {/* Botões de ação */}
@@ -211,7 +215,25 @@ const ReadPage = () => {
                       className="flex-1 bg-gray-300 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed flex items-center justify-center space-x-2"
                     >
                       <Eye className="w-4 h-4" />
-                      <span>Em breve</span>
+                      <span>Mundo 3D</span>
+                    </button>
+                  )}
+
+                  {book.audiobook_available ? (
+                    <button
+                      onClick={() => handleListenAudiobook(book)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                    >
+                      <Headphones className="w-4 h-4" />
+                      <span>Ouvir</span>
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="flex-1 bg-gray-300 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed flex items-center justify-center space-x-2"
+                    >
+                      <Headphones className="w-4 h-4" />
+                      <span>Audiolivro</span>
                     </button>
                   )}
                 </div>
@@ -261,4 +283,5 @@ const ReadPage = () => {
 };
 
 export default ReadPage;
+
 

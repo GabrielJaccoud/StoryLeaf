@@ -17,7 +17,7 @@ PROCESSED_BOOKS_DIR = '/home/ubuntu/StoryLeaf/processed_books'
 # Cache de livros carregados
 LOADED_BOOKS = {}
 
-@book_integration_bp.route('/api/library/list', methods=['GET'])
+@book_integration_bp.route("/library/list", methods=["GET"])
 def list_available_books():
     """
     Lista todos os livros processados disponíveis
@@ -49,7 +49,7 @@ def list_available_books():
     except Exception as e:
         return jsonify({"error": f"Erro ao listar livros: {str(e)}"}), 500
 
-@book_integration_bp.route('/api/library/<book_id>/content', methods=['GET'])
+@book_integration_bp.route("/library/<book_id>/content", methods=["GET"])
 def get_book_content(book_id):
     """
     Retorna o conteúdo processado de um livro
@@ -87,7 +87,7 @@ def get_book_content(book_id):
     except Exception as e:
         return jsonify({"error": f"Erro ao carregar livro: {str(e)}"}), 500
 
-@book_integration_bp.route('/api/library/<book_id>/world-data', methods=['GET'])
+@book_integration_bp.route("/library/<book_id>/world-data", methods=["GET"])
 def get_book_world_data(book_id):
     """
     Retorna dados do livro formatados para o WorldExplorer
@@ -112,7 +112,7 @@ def get_book_world_data(book_id):
     except Exception as e:
         return jsonify({"error": f"Erro ao gerar dados do mundo: {str(e)}"}), 500
 
-@book_integration_bp.route('/api/library/<book_id>/audiobook-data', methods=['GET'])
+@book_integration_bp.route("/library/<book_id>/audiobook-data", methods=["GET"])
 def get_book_audiobook_data(book_id):
     """
     Retorna dados do livro formatados para o Mystic Audiobook
@@ -137,7 +137,7 @@ def get_book_audiobook_data(book_id):
     except Exception as e:
         return jsonify({"error": f"Erro ao gerar dados do audiobook: {str(e)}"}), 500
 
-@book_integration_bp.route('/api/library/<book_id>/ai-analysis', methods=['POST'])
+@book_integration_bp.route("/library/<book_id>/ai-analysis", methods=["POST"])
 def analyze_book_with_ai(book_id):
     """
     Analisa o livro usando a Árvore da Vida AI
